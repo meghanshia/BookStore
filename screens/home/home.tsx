@@ -19,7 +19,8 @@ export const Home: FunctionComponent<HomeProps> = ({navigation}) => {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [offset, setOffset] = useState(1);
-  const getData = async item => {
+  const [searchKey, setSearchKey] = useState('');
+  const getData = async (item: string) => {
     if (!isLoading) {
       setIsLoading(true);
       let baseURL = 'https://openlibrary.org/search.json?q=';
@@ -36,14 +37,13 @@ export const Home: FunctionComponent<HomeProps> = ({navigation}) => {
           setOffset(offset + 1);
           setData(response.data.docs);
         })
-        .catch(err => console.log('eroor: ', err));
+        .catch(err => console.log('error: ', err));
       setIsLoading(false);
     }
   };
 
-  const renderItemList = (item: {title: any}) => {
-    let url =
-      'https://covers.openlibrary.org/b/id/' + item.item.cover_i + '-S.jpg';
+  const renderItemList = ({item}) => {
+    let url = 'https://covers.openlibrary.org/b/id/' + item.cover_i + '-S.jpg';
     return (
       <TouchableOpacity
         onPress={() =>
@@ -51,7 +51,7 @@ export const Home: FunctionComponent<HomeProps> = ({navigation}) => {
         }
         style={styles.ListItemView}>
         <Image source={{uri: url}} style={styles.Thumbnail} />
-        <Text style={styles.Title}>{item.item.title}</Text>
+        <Text style={styles.Title}>{item.title}</Text>
       </TouchableOpacity>
     );
   };
@@ -66,10 +66,13 @@ export const Home: FunctionComponent<HomeProps> = ({navigation}) => {
   };
 
   const onEndReached = () => {
-    !isLoading && data.length > 0 && getData();
-  };
+    !isLoading &&
+      data.length > 0 &&
+      offset < data.length / 100 &&
+      getData(searchKey);
+  }
 
-  const keyExtractor = (item, index) => Math.random();
+  const keyExtractor = (item, index) => offset + '_' + index;
   return (
     <View style={styles.Container}>
       <View style={styles.ImageView}>
@@ -83,7 +86,7 @@ export const Home: FunctionComponent<HomeProps> = ({navigation}) => {
         </View>
       </View>
       <Text style={styles.Text1}>Enter your text and press search key..</Text>
-      <SearchBar onSearch={getData} />
+      <SearchBar onSearch={getData} setSearchKey={setSearchKey} />
       {isLoading ? (
         <View style={styles.LoaderView}>
           <ActivityIndicator size="large" />
