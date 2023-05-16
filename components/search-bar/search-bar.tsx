@@ -4,7 +4,8 @@ import {styles} from './search-bar.styles';
 import {Input} from 'react-native-elements';
 
 export interface SearchBarProps {
-  onSearch: () => Promise<void>;
+  onSearch: any;
+  setSearchKey: any;
 }
 
 /*
@@ -30,6 +31,7 @@ const SearchBars: React.FunctionComponent<SearchBarProps> = (
 
   const onTextChanged = val => {
     setValue(val);
+    props.setSearchKey(val);
   };
 
   return (
